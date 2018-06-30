@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.3.xsd
+    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns:task="http://www.springframework.org/schema/task">
+
+	<int:inbound-channel-adapter expression="'World! time is ' + T(java.lang.System).currentTimeMillis()" channel="bridgeChannel">
+		<int:poller fixed-delay="2000" max-messages-per-poll="2" />
+	</int:inbound-channel-adapter>
+
+	<task:executor id="taskExecutor" queue-capacity="20" pool-size="5-20"/>
+	
+	<int:channel id="bridgeChannel">
+		<int:queue capacity="2"/>
+	</int:channel>
+	
+	<int:channel id="inputChannel"/>
+	<int:channel id="outputChannel">
+		<int:queue capacity="10"/>
+	</int:channel>
+
+	<int:service-activator input-channel="inputChannel"
+	                   output-channel="outputChannel"
+	                   ref="sampleService"
+	                   method="sayHello"/>
+
+	<bean id="sampleService" class="org.ek.sample.helloworld.HelloWorldService"/>
+	
+</beans>
